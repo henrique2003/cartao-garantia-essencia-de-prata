@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificado de Garantia</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Helvetica+Now+Display:wght@400&family=Questial:wght@400&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="./reset.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: 'Questial', sans-serif;
+      /* Fonte padrão para o corpo */
+      margin: 0;
+      padding: 0 20px;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      background-color: #fff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 50px 0;
+      padding: 30px 40px;
+      background-color: #fff;
+      border: 3px solid #cba16a;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #555;
+      font-family: 'Helvetica Now Display', sans-serif;
+    }
+
+    .content {
+      margin: 20px 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .content p {
+      margin-bottom: 10px;
+    }
+
+    .content strong {
+      color: #555;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .info-row p {
+      font-size: 16px;
+    }
+
+    .info-row p span {
+      color: #cba16a;
+      padding: 0 5px;
+      font-size: 15px;
+    }
+
+    .terms {
+      margin-top: 20px;
+    }
+
+    .term-alerts {
+      margin-top: 35px;
+    }
+
+    .terms,
+    .term-alerts {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .terms p,
+    .term-alerts p {
+      margin: 0;
+      font-size: 15px;
+      color: #333;
+      display: flex;
+      align-items: center;
+    }
+
+    .terms p::before {
+      content: '❖';
+      font-size: 22px;
+      margin-right: 7px;
+      height: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #cba16a;
+    }
+
+    .term-alerts p {
+      font-size: 15px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      display: flex;
+      gap: 7px;
+    }
+
+    .term-alerts i {
+      color: #ffcc00;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 30px;
+      color: #888;
+      font-style: italic;
+    }
+
+    .actions {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+
+    #generate-pdf {
+      display: block;
+      padding: 10px 20px;
+      font-size: 17px;
+      background-color: #cba16a;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all .3s ease-in-out;
+      position: relative;
+    }
+
+    #generate-pdf:hover {
+      filter: brightness(0.9);
+      transition: all .3s ease-in-out;
+    }
+
+    #edit-info {
+      display: block;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: transparent;
+      color: #cba16a;
+      border: 1px solid #cba16a;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all .3s ease-in-out;
+    }
+
+    #edit-info:hover {
+      filter: brightness(0.9);
+      transition: all .3s ease-in-out;
+    }
+
+    .line-separator {
+      margin: 30px 0;
+      margin-bottom: 40px;
+      border-bottom: 1px solid #cba16a;
+    }
+
+    /* Estilo da Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 300px;
+      border-radius: 10px;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-content h3 {
+      font-size: 20px;
+      color: #333333d2;
+    }
+
+    .modal-content input {
+      width: 90%;
+      padding: 10px 13px;
+      margin: 10px 0;
+      font-size: 15px;
+      border: 1px solid #cba16a;
+      border-radius: 2px;
+      color: #333;
+      outline: none;
+    }
+
+    .modal-content button {
+      margin-top: 13px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #cba16a;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .modal-content button:hover {
+      background-color: #cba16a;
+    }
+
+    /* Estilo do ícone de fechar */
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      color: #cba16a;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" id="certificate">
+    <h1>Parabéns pela compra!</h1>
+
+    <div class="info-row">
+      <p>Data da compra:<span id="purchase-date">___/___/_____</span></p>
+      <p>Cód. de ref:<span id="ref-code">________________</span></p>
+    </div>
+
+    <div class="line-separator"></div>
+
+    <div class="terms">
+      <p>Garantimos que o produto é feito de prata 925 autêntico.</p>
+      <p>Em casos de defeito de fábrica, o produto pode ser trocado em até 90 dias após o recebimento do produto.</p>
+      <p>Devoluções podem ser feitas em até 7 dias após o recebimento do produto.</p>
+    </div>
+
+    <div class="term-alerts">
+      <p><i class="fa-solid fa-triangle-exclamation"></i> Não há garantia em caso de perda.</p>
+      <p><i class="fa-solid fa-triangle-exclamation"></i> Não há garantia em caso de peça danificada ou quebrada.</p>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="generate-pdf">Gerar PDF</button>
+    <button id="edit-info">Editar</button>
+  </div>
+
+  <!-- Modal para preencher dados -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="close-modal">&times;</span>
+      <h3>Preencher Informações</h3>
+      <input type="date" id="input-purchase-date" placeholder="Data da Compra">
+      <input type="text" id="input-ref-code" placeholder="Código de Referência">
+      <button id="submit-info">Confirmar</button>
+    </div>
+  </div>
+
+  <script>
+    // Função para formatar a data corretamente
+    function formatDate(dateString) {
+      const dateParts = dateString.split('-'); // Formato esperado: YYYY-MM-DD
+      if (dateParts.length === 3) {
+        const year = dateParts[0];
+        const month = dateParts[1];
+        const day = dateParts[2];
+        return `${day}/${month}/${year}`; // Formato final: DD/MM/YYYY
+      }
+      return '__/__/____'; // Caso a data seja inválida
+    }
+
+    // Função para abrir a modal e preencher os campos corretamente
+    function openModal() {
+      document.getElementById('modal').style.display = 'block';
+
+      var currentPurchaseDate = document.getElementById('purchase-date').textContent.trim();
+      var currentRefCode = document.getElementById('ref-code').textContent.trim();
+
+      // Verificar se a data e o código são placeholders ou valores reais
+      document.getElementById('input-purchase-date').value = (currentPurchaseDate !== "__/__/____") ? currentPurchaseDate.split('/').reverse().join('-') : '';
+      document.getElementById('input-ref-code').value = (currentRefCode !== "________________") ? currentRefCode : '';
+    }
+
+    // Capturar dados do formulário e fechar a modal
+    document.getElementById('submit-info')?.addEventListener('click', function () {
+      const purchaseDateInput = document.getElementById('input-purchase-date').value;
+      const refCodeInput = document.getElementById('input-ref-code').value;
+
+      // Verificar se a data foi preenchida
+      if (purchaseDateInput) {
+        document.getElementById('purchase-date').textContent = formatDate(purchaseDateInput); // Formatar a data
+      }
+
+      // Verificar se o código de referência foi preenchido
+      if (refCodeInput) {
+        document.getElementById('ref-code').textContent = refCodeInput;
+      }
+
+      document.getElementById('modal').style.display = 'none'; // Fechar a modal
+    });
+
+    // Gerar PDF ao clicar no botão
+    document.getElementById('generate-pdf').addEventListener('click', function () {
+      const { jsPDF } = window.jspdf;
+
+      // Pegar o conteúdo HTML
+      const content = document.getElementById('certificate');
+
+      // Usar html2canvas para renderizar o conteúdo em um canvas
+      html2canvas(content, {
+        backgroundColor: null // Remover background transparente
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+
+        // Criar o documento PDF
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        // Adicionar a imagem renderizada ao PDF
+        doc.addImage(imgData, 'PNG', 10, 10, 190, canvas.height * 190 / canvas.width);
+
+        // Salvar o PDF
+        doc.save('certificado-garantia.pdf');
+      }).catch(function (error) {
+        console.error('Erro ao gerar PDF:', error);
+      });
+    });
+
+    // Abrir modal ao clicar no botão de editar informações
+    document.getElementById('edit-info')?.addEventListener('click', openModal);
+
+    // Fechar a modal ao clicar no ícone de fechar
+    document.getElementById('close-modal')?.addEventListener('click', function () {
+      document.getElementById('modal').style.display = 'none';
+    });
+
+    // Fechar a modal ao clicar fora dela
+    window.onclick = function (event) {
+      const modal = document.getElementById('modal');
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    }
+  </script>
+
+</body>
+
+</html>
